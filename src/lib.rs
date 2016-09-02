@@ -28,6 +28,20 @@ mod test {
     }
 
     #[test]
+    fn test_gosthash_leftovers() {
+        let sbox = sbox::unpack(sbox::DSTU_SBOX);
+        let mut hash = gosthash::init(sbox);
+        let data = b"123456789012345678901234567890111415";
+        let mut outdata: [u8; 32] = [0; 32];
+        gosthash::update(&mut hash, data);
+        gosthash::finish(&hash, &mut outdata);
+
+        let expect = b"\x898x\xbc\xeee\xf2\xe9\xa3wC\xa99e\t<U\x85\x7f\x0e\xa4\xe9\x8e\xe7\xa6Y\x16EC\x12\x83B";
+
+        assert_eq!(&outdata, expect);
+    }
+
+    #[test]
     fn test_gosthash() {
         let sbox = sbox::unpack(sbox::DSTU_SBOX);
         let mut hash = gosthash::init(sbox);
@@ -40,4 +54,5 @@ mod test {
 
         assert_eq!(&outdata, expect);
     }
+
 }

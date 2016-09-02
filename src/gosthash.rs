@@ -14,6 +14,10 @@ pub fn init(sbox: sbox::Sbox) -> GostHash {
     return GostHash {ctx: ctx, h: [0; 32], s: [0; 32], len: 0};
 }
 
+pub fn init_default() -> GostHash {
+    return init(sbox::unpack(sbox::DSTU_SBOX));
+}
+
 fn swap_bytes (w: &[u8], k: &mut [u8]) {
     let mut i: usize = 0;
     let mut j: usize;
@@ -157,11 +161,26 @@ fn add_blocks(n: usize, left: &mut[u8], right: &[u8]) {
 
 pub fn update(hash: &mut GostHash, data: &[u8]) {
     let mut offset = 0;
-    while (data.len() - offset) >= 32 {
+    let mut data_left = data.len();
+    while data_left >= 32 {
         hash_step(&hash.ctx, &mut hash.h, &data[offset..offset+32]);
         add_blocks(32, &mut hash.s, &data[offset..offset+32]);
         offset += 32;
         hash.len += 32;
+        data_left -= 32;
+    }
+
+    if data_left > 0 {
+        let mut leftover: [u8; 32] = [0; 32];
+        let mut i: usize = 0;
+        while i < data_left {
+            leftover[i] = data[offset + i];
+
+            i += 1;
+        }
+        hash_step(&hash.ctx, &mut hash.h, &leftover);
+        add_blocks(32, &mut hash.s, &leftover);
+        hash.len += data_left as u64;
     }
 }
 
