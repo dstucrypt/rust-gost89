@@ -1,0 +1,8 @@
+[package]
+name = "gost89"
+version = "0.1.0"
+authors = ["Illya Petrov <ilya.muromec@gmail.com>"]
+
+[lib]
+name = "gost89"
+path = "src/lib.rs"
