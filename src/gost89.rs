@@ -42,12 +42,27 @@ pub fn init(sbox: sbox::Sbox, key: [u32; 8]) -> Gost89 {
     return Gost89 {k: key, k87: k87, k65: k65, k43: k43, k21: k21};
 }
 
+pub fn set_key(ctx: &Gost89, key32: [u8; 32])-> Gost89 {
+    let mut key: [u32; 8] = [0; 8];
+    let mut i: usize = 0;
+    while i < 8 {
+        key[i] = key32[i * 4] as u32 |
+                 (key32[(i * 4) + 1] as u32) << 8 |
+                 (key32[(i * 4) + 2] as u32) << 16 |
+                 (key32[(i * 4) + 3] as u32) << 24;
+
+        i += 1;
+    }
+    return Gost89 {k: key, k87: ctx.k87, k65: ctx.k65, k43: ctx.k43, k21: ctx.k21};
+
+}
+
 #[inline]
 fn add(a: u32, b: u32)-> u32 {
     return a.wrapping_add(b);
 }
 
-pub fn encrypt(c: &Gost89, inp: &[u8; 8], out: &mut [u8; 8]) {
+pub fn encrypt(c: &Gost89, inp: &[u8], out: &mut [u8]) {
     let mut n1: u32 = inp[0] as u32 |
                      (inp[1] as u32) << 8 |
                      (inp[2] as u32) <<16 |
